@@ -30,7 +30,7 @@
           <td class="px-6 py-4">{{ emplyoee.email }}</td>
           <td class="px-6 py-4">{{ emplyoee.phone }}</td>
           <td class="px-6 py-4">{{ emplyoee.job_positon }}</td>
-          <td class="px-6 py-4">{{ emplyoee.salary }}</td>
+          <td class="px-6 py-4">{{ Number(emplyoee.salary).toLocaleString() }}</td>
           <td class="px-6 py-4">{{ emplyoee.hire_date }}</td>
           <td class="px-6 py-4">{{ emplyoee.birthday }}</td>
           <td class="px-6 py-4">{{ emplyoee.gender }}</td>
