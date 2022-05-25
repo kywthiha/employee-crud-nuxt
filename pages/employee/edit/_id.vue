@@ -3,7 +3,7 @@
     <div class="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-gray-100 shadow">
       <div class="flex-1 px-4 flex justify-between items-center">
         <div class="flex-1 flex text-lg font-bold items-center">
-          Add Emplyoee
+          Edit Emplyoee
         </div>
       </div>
     </div>
@@ -27,6 +27,7 @@
                       type="text"
                       name="name"
                       id="name"
+                      v-model="emplyoee.name"
                       autoComplete="given-name"
                       class="mt-1 focus:ring-cyan-500 focus:border-cyan-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                     />
@@ -40,6 +41,7 @@
                       </span>
                     </label>
                     <input
+                      v-model="emplyoee.email"
                       required
                       type="email"
                       name="email"
@@ -56,6 +58,7 @@
                       </span>
                     </label>
                     <input
+                      v-model="emplyoee.phone"
                       required
                       type="text"
                       name="phone"
@@ -73,6 +76,7 @@
                       </span>
                     </label>
                     <input
+                      v-model="emplyoee.birthday"
                       required
                       type="date"
                       name="birthday"
@@ -84,18 +88,30 @@
                   <div class="block">
                     <div class="mt-3">
                       <label for="gender" class="block text-sm font-semibold">
-                        Gener
+                        Gender
                         <span class="text-red-700 ml-2 text-xs">
                           (Required)
                         </span>
                       </label>
                       <div>
                         <label class="inline-flex items-center">
-                          <input type="radio" name="gender" required value="male" />
+                          <input
+                            type="radio"
+                            name="gender"
+                            v-model="emplyoee.gender"
+                            value="male"
+                            required
+                          />
                           <span class="ml-2">Male</span>
                         </label>
                         <label class="inline-flex items-center">
-                          <input type="radio" name="gender" required value="female" />
+                          <input
+                            type="radio"
+                            name="gender"
+                            value="female"
+                            required
+                            v-model="emplyoee.gender"
+                          />
                           <span class="ml-2">Female</span>
                         </label>
                       </div>
@@ -115,6 +131,7 @@
                       </span>
                     </label>
                     <input
+                      v-model="emplyoee.job_positon"
                       required
                       type="text"
                       name="job_positon"
@@ -131,6 +148,7 @@
                       </span>
                     </label>
                     <input
+                      v-model="emplyoee.salary"
                       required
                       type="number"
                       name="salary"
@@ -147,6 +165,7 @@
                       </span>
                     </label>
                     <input
+                      v-model="emplyoee.hire_date"
                       required
                       type="date"
                       name="hire_date"
@@ -162,8 +181,8 @@
               <button
                 type="submit"
                 class="inline-flex items-center px-4 py-2 bg-cyan-700 border border-transparent rounded-md font-semibold text-xs text-white active:bg-cyan-900 transition ease-in-out duration-150"
-                v-bind:class="{ 'opacity-50': createProcessing }"
-                :disabled="createProcessing"
+                v-bind:class="{ 'opacity-50': updateProcessing }"
+                :disabled="updateProcessing"
               >
                 Submit
               </button>
@@ -176,18 +195,32 @@
 </template>
 
 <script>
-import FormInputError from '../../components/FormInputError.vue'
+import FormInputError from '../../../components/FormInputError.vue'
 import {
-  ALL_EMPLOYEES_QUERY,
-  CREATE_EMPLOYEE_MUTATION,
-} from '../../graphql/emplyoee-graphql'
+  EMPLOYEE_QUERY,
+  UPDATE_EMPLOYEE_MUTATION,
+} from '../../../graphql/emplyoee-graphql'
+
 export default {
   components: { FormInputError },
-  name: 'CreateEmployee',
+  name: 'EditEmployee',
+  apollo: {
+    emplyoee: {
+      query: EMPLOYEE_QUERY,
+      prefetch: true,
+      variables() {
+        return {
+          id: Number(this.$route.params.id),
+        }
+      },
+      fetchPolicy: 'network-only',
+    },
+  },
   data() {
     return {
-      createProcessing: false,
+      updateProcessing: false,
       error: {},
+      emplyoee: {},
     }
   },
   methods: {
@@ -195,11 +228,15 @@ export default {
       e.preventDefault()
       try {
         this.error = {}
-        this.createProcessing = true
+        this.updateProcessing = true
         const formData = Object.fromEntries(new FormData(e.target))
         await this.$apollo.mutate({
-          mutation: CREATE_EMPLOYEE_MUTATION,
-          variables: { ...formData, salary: Number(formData.salary) },
+          mutation: UPDATE_EMPLOYEE_MUTATION,
+          variables: {
+            ...formData,
+            salary: Number(formData.salary),
+            id: Number(this.$route.params.id),
+          },
         })
         this.$router.push('/employee')
       } catch (error) {
@@ -207,9 +244,9 @@ export default {
         if (graphQLErrors[0]?.extensions.category === 'validation') {
           this.error = graphQLErrors[0].extensions.validation
         } else {
-          this.$toast.error('Error while creating employee')
+          this.$toast.error('Error while updating employee')
         }
-        this.createProcessing = false
+        this.updateProcessing = false
       }
     },
   },

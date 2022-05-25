@@ -15,7 +15,10 @@
       </div>
     </div>
     <div class="p-5">
-      <emplyoee-list :emplyoees="emplyoees.data" />
+      <emplyoee-list
+        :emplyoees="emplyoees.data"
+        :deleteEmplyoee="deleteEmplyoee"
+      />
       <div class="mt-5">
         <pagination :pagination="emplyoees" />
       </div>
@@ -26,7 +29,10 @@
 <script>
 import EmplyoeeList from '../../components/EmplyoeeList.vue'
 import Pagination from '../../components/Pagination.vue'
-import { ALL_EMPLOYEES_QUERY } from '../../graphql/emplyoee-graphql'
+import {
+  ALL_EMPLOYEES_QUERY,
+  DELETE_EMPLOYEE_MUTATION,
+} from '../../graphql/emplyoee-graphql'
 
 export default {
   components: { EmplyoeeList, Pagination },
@@ -38,7 +44,7 @@ export default {
       prefetch: true,
       variables() {
         return {
-          page: (this.$route.query.page && Number(this.$route.query.page)) || 1,
+          page: this.page,
         }
       },
       fetchPolicy: 'network-only',
@@ -51,15 +57,31 @@ export default {
       },
     }
   },
+  computed: {
+    page() {
+      return Number(this.$route.query.page) || 1
+    },
+  },
 
   methods: {
-    change(page) {
-      this.$router.push({
-        path: this.$router.path,
-        query: {
-          page: page,
-        },
-      })
+    deleteEmplyoee(id) {
+      const result = confirm('Are you sure you want to delete this emplyoee?')
+      if (result) {
+        this.$apollo.mutate({
+          mutation: DELETE_EMPLOYEE_MUTATION,
+          variables: {
+            id,
+          },
+          refetchQueries: [
+            {
+              query: ALL_EMPLOYEES_QUERY,
+              variables: {
+                page: this.page,
+              },
+            },
+          ],
+        })
+      }
     },
   },
 }

@@ -16,6 +16,9 @@
             autoComplete="username"
           />
         </div>
+        <span class="text-red-700 text-xs" v-if="error">
+          {{ error }}
+        </span>
       </div>
 
       <div class="mt-4">
@@ -34,13 +37,22 @@
 
       <div class="flex items-center justify-end mt-4">
         <button
-          class="inline-flex items-center px-4 py-2 bg-cyan-700 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest active:bg-cyan-900 transition ease-in-out duration-150"
+          class="w-full text-center px-4 py-3 bg-cyan-700 border border-transparent font-semibold text-xs text-white uppercase tracking-widest active:bg-cyan-900 transition ease-in-out duration-150"
           v-bind:class="{ 'opacity-50': loginProcessing }"
           :disabled="loginProcessing"
           type="submit"
         >
           Log in
         </button>
+      </div>
+      <div class="flex justify-center text-xs gap-1 mt-4">
+        <span>Don't have an account?</span>
+        <nuxt-link
+          to="/register"
+          class="text-center text-xs text-blue-500 underline"
+        >
+          Register
+        </nuxt-link>
       </div>
     </form>
   </div>
@@ -61,8 +73,8 @@ export default {
         await this.$auth.loginWith('local', {
           data: {
             grant_type: 'password',
-            client_id: 4,
-            client_secret: 'nKSeCjmmLyw6gQhQM9HgnhRGWqBTK9GYJQYlpjFE',
+            client_id: process.env.CLIENT_ID,
+            client_secret: process.env.CLIENT_SECRET,
             scope: '*',
             username: email,
             password,
@@ -70,7 +82,6 @@ export default {
         })
         this.$router.push('/')
       } catch (e) {
-        console.log(e)
         this.error = e.response.data.message
       }
     },

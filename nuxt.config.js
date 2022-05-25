@@ -35,16 +35,21 @@ export default {
     '@nuxtjs/auth-next',
     '@nuxtjs/apollo',
     '@nuxt/postcss8',
+    '@nuxtjs/toast',
+    '@nuxtjs/dotenv',
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
-    baseURL: 'http://localhost:8000',
+    baseURL: process.env.BASE_URL,
   },
 
   apollo: {
     clientConfigs: {
       default: '~/plugins/apollo-config.js',
+      auth: {
+        httpEndpoint: `${process.env.BASE_URL}/graphql/auth`,
+      },
     },
   },
 
@@ -53,6 +58,20 @@ export default {
     manifest: {
       lang: 'en',
     },
+  },
+
+  toast: {
+    position: 'top-center',
+    register: [
+      // Register custom toasts
+      {
+        name: 'my-error',
+        message: 'Oops...Something went wrong',
+        options: {
+          type: 'error',
+        },
+      },
+    ],
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
@@ -87,22 +106,16 @@ export default {
             propertyName: 'access_token',
           },
           logout: {
-            url: '/api/auth/logout',
-            method: 'post',
+            url: '/graphql?query=mutation+logout{logout}',
+            method: 'get',
             propertyName: 'access_token',
           },
-          user: { url: '/api/auth/me', method: 'get' },
+          user: {
+            url: '/graphql?query=query+user{user{id,email,name}}',
+            property: 'data.user',
+            method: 'get',
+          },
         },
-      },
-      laravelPassport: {
-        provider: 'laravel/passport',
-        grantType: 'password',
-        endpoints: {
-          user: { url: '/api/auth/user', method: 'get' },
-        },
-        url: 'http://localhost:8000',
-        clientId: '4',
-        clientSecret: 'nKSeCjmmLyw6gQhQM9HgnhRGWqBTK9GYJQYlpjFE',
       },
     },
   },

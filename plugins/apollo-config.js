@@ -1,6 +1,6 @@
 export default function () {
   return {
-    httpEndpoint: 'http://localhost:8000/graphql',
+    httpEndpoint: `${process.env.BASE_URL}/graphql`,
     getAuth: () => `${localStorage.getItem('auth._token.local')}`,
   }
 }
